@@ -10,27 +10,44 @@ provider "aws" {
   profile = "my_aws_profile"
 }
 
+#Create an S3 Bucket
+
 resource "aws_s3_bucket" "my_s3bucket_state" {
 
-       bucket = "mys3bucketstate"
-#       region = "us-east-1"
-#       key    = "mys3bucketstate/s3bucket.tfstate"
-#       dynamodb_table = "mydynamostatelock"
+  bucket = "mys3bucketstate"
+  #       region = "us-east-1"
+  #       key    = "mys3bucketstate/s3bucket.tfstate"
+  #       dynamodb_table = "mydynamostatelock"
 
-server_side_encryption_configuration {
-        rule {
-            bucket_key_enabled = true
+  server_side_encryption_configuration {
+    rule {
+      bucket_key_enabled = true
 
-            apply_server_side_encryption_by_default {
-                kms_master_key_id = null
-                sse_algorithm     = "AES256"
-            }
-        }
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = null
+        sse_algorithm     = "AES256"
+      }
     }
+  }
 
-    versioning {
-        enabled    = true
-        mfa_delete = false
-    }
+  versioning {
+    enabled    = true
+    mfa_delete = false
+  }
 }
 
+#Create a Dynamo DB Table
+
+resource "aws_dynamodb_table" "my_dynamodb_tbl_state_lock" {
+
+  name         = "mydynamodbstatelock"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+
+    name = "LockID"
+    type = "S"
+  }
+
+}
